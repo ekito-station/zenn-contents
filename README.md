@@ -1,3 +1,5 @@
 # Zenn Contents
+Zenn CLIを使って執筆した記事を管理しています。
+This repository maintains articles written using Zenn CLI.
 
-* [📘 How to use](https://zenn.dev/zenn/articles/zenn-cli-guide)
+(Zenn: https://zenn.dev/ekito_station)
