@@ -1,3 +1,3 @@
-# Zenn CLI
-
-* [📘 How to use](https://zenn.dev/zenn/articles/zenn-cli-guide)
+# Zenn Contents
+This repository maintains articles written using Zenn CLI.  
+(Zenn: https://zenn.dev/ekito_station)
