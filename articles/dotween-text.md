@@ -67,9 +67,11 @@ Sequenceを使うことで、処理を連続で行うことができます。Seq
 # 4. (追記)DOTween ProでTextMeshProを点滅させる
 DOTween Pro(DOTweenの有料版)を入手すれば、TextMeshPro用の拡張メソッドを使うことができます。
 https://assetstore.unity.com/packages/tools/visual-scripting/dotween-pro-32416?locale=ja-JP
+:::message
 インポート後に表示されるDOTween Utility Panelで、TextMesh Proにチェックを入れます。
+:::
 ![](/images/dotween-text/image3.png =400x)
-Textの場合とほぼ同様に、以下のようなコードでTextMeshProを点滅させることができます。
+DOTween Proをインポートすれば、Textの場合とほぼ同様に、以下のようなコードでTextMeshProを点滅させることができます。
 ```csharp
 using System.Collections;
 using System.Collections.Generic;
