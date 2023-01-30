@@ -7,7 +7,7 @@ published: true
 ---
 # はじめに
 初DOTweenということで、Textを点滅させる方法についてメモ。
-## 1. DOTweenのセットアップ
+# 1. DOTweenのセットアップ
 アセットストアからDOTween (HOTween v2)を入手。
 https://assetstore.unity.com/packages/tools/animation/dotween-hotween-v2-27676?locale=ja-JP
 こちらの記事を参考にして、プロジェクトにインポート。
