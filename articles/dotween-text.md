@@ -63,3 +63,29 @@ DoFadeとSetLoopsを組み合わせることで、Textのアルファ値の変�
 ```
 Sequenceを使うことで、処理を連続で行うことができます。Sequenceのインスタンスを作成し、そこに処理を追加していきます。上の例では、まず4秒待ってから5秒かけてTextの色を赤に変え、その後に5秒かけて青に変える処理を追加しています。最後にPlayで一連の処理を実行しています。
 ![](/images/dotween-text/image2.gif)
+
+# 4. (追記)DOTween ProでTextMeshProを点滅させる
+DOTween Pro(DOTweenの有料版)を入手すれば、TextMeshPro用の拡張メソッドを使うことができます。
+https://assetstore.unity.com/packages/tools/visual-scripting/dotween-pro-32416?locale=ja-JP
+インポート後に表示されるDOTween Utility Panelで、TextMesh Proにチェックを入れます。
+![](/images/dotween-text/image3.png =400x)
+Textの場合とほぼ同様に、以下のようなコードでTextMeshProを点滅させることができます。
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+using DG.Tweening;
+
+public class TextMeshProManager : MonoBehaviour
+{
+    public TextMeshProUGUI dotweenTextMeshPro;
+    public float dotweenInterval;
+
+    void Start()
+    {
+        dotweenTextMeshPro.DOFade(0.0f, dotweenInterval)
+                          .SetLoops(-1, LoopType.Yoyo);
+    }
+}
+```
