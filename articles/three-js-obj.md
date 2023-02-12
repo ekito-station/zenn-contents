@@ -3,7 +3,7 @@ title: "Three.jsを使ってOBJファイルを表示させる"
 emoji: "🚥"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["threejs"]
-published: false
+published: true
 ---
 # はじめに
 Three.jsを使って、以下のようにwebブラウザでOBJファイルを表示させる方法についてメモ。
