@@ -302,6 +302,7 @@ CountLife()では、周囲にあるONの状態のセルの数をセルごとに�
 
 # おわりに
 Drum Life GameのARバージョンも制作しました。ARを活用することで、元々のアプリ体験を空間的に拡張しています。
+https://youtube.com/shorts/xgSqND1ucXU
 ### Drum Life Game AR
 iOS ver.
 @[card](https://apps.apple.com/app/drum-life-game-ar/id6449294573)
