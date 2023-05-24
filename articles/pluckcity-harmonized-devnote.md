@@ -2,7 +2,7 @@
 title: "Pluck City -harmonized- 開発メモ"
 emoji: "🎶"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["unity", "csharp", "photon", "pun2"]
+topics: ["unity", "csharp", "photon", "pun2", "個人開発"]
 published: true
 ---
 # はじめに
