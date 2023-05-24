@@ -2,7 +2,7 @@
 title: "スマホがある地点の方角を向いた時にWidgetを表示させる（Flutter）"
 emoji: "🧭"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [flutter, dart]
+topics: [flutter, dart, 個人開発]
 published: true
 ---
 # はじめに

@@ -2,8 +2,8 @@
 title: "Drum Life Game開発メモ"
 emoji: "🥁"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["unity", "csharp"]
-published: false
+topics: ["unity", "csharp", "個人開発"]
+published: true
 ---
 # はじめに
 Drum Life Gameという音楽演奏アプリを制作しました。ライフゲームのルールに基づいてドラムの演奏パターンが変化します。本記事では、アプリの開発過程についてメモします（説明のために一部コードを変更しています）。
