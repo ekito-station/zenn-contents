@@ -66,7 +66,7 @@ public class NoteController : MonoBehaviour
 列の中で白色のセルからのみ音が鳴ります。
 ![](/images/drum-life-game/image3.png)
 
-まず、各セルにアタッチされているスクリプトに以下の関数を追加します。
+まず、NoteControllerに以下の関数を追加します。
 自らが存在する列の再生される順番が来たときに、OFFの状態のセルは茶色になり、ONの状態のセルはベージュ色になるとともに音を鳴らします。次の列の再生される順番になったら（0.3秒後）、色を元に戻します。
 ```csharp:NoteController.cs
     public AudioSource audioSource;
