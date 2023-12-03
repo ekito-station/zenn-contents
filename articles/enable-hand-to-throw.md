@@ -1,6 +1,6 @@
 ---
 title: "Meta XR SDKを使って、手でオブジェクトを投げられるようにする"
-emoji: "⚾️"
+emoji: "🥎"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["unity", "vr"]
 published: true
