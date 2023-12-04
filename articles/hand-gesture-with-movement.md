@@ -3,7 +3,7 @@ title: "Meta XR SDKを使って、動きを伴うハンドジェスチャを認�
 emoji: "🙌"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["unity", "vr"]
-published: false
+published: true
 ---
 # はじめに
 Meta XR SDKを使って、動きを伴うハンドジェスチャを認識する（つまり、手の向きや形に加えて動きを同時に認識する）方法をメモします。
