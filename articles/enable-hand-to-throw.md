@@ -81,3 +81,6 @@ HandVelocityCalculatorの`Hand Pose Input Device > Hand`に`LeftHand`または`R
 # おわりに
 以上の作業で、下のようにオブジェクトを手で掴んで投げられるようになります！
 ![](/images/enable-hand-to-throw/movie1.gif)
+
+### 参考リンク
+https://developer.oculus.com/documentation/unity/unity-isdk-throw-object/
