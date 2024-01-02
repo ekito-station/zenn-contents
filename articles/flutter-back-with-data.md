@@ -1,5 +1,5 @@
 ---
-title: "Flutterでページを戻る時にデータを渡す"
+title: "【Flutter】ページを戻る時にデータを渡す"
 emoji: "⏪"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["flutter"]
