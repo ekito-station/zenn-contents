@@ -20,7 +20,7 @@ Containerの中に以下のようにWidgetを配置する方法をまとめま�
 まず、各Widgetを横に並べるためにRowを用います。
 Widgetを均等に並べるために、
 `mainAxisAlignment`プロパティには`MainAxisAlignment.spaceEvenly`を指定します。
-これによって、Wdiget間にスペースが均等に配置されます。
+これによって、Widget間にスペースが均等に配置されます。
 ```dart
 Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
