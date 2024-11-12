@@ -2,14 +2,14 @@
 title: "Walking DJ 開発メモ"
 emoji: "💿"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["unity"]
+topics: ["unity", "csharp", "html", "javascript"]
 published: false
 ---
 # はじめに
 2024年10月に虎ノ門ヒルズで開催されたプログラム「TOKYO NODE OPEN LAB 2024 “XR PARADE” created with TNXR」にて、音楽レコメンドARアプリ「Walking DJ」を開発・展示しました。本記事では、このアプリの開発過程をまとめたいと思います。
 
 ## Walking DJ 概要
-「Walking DJ」は、ユーザーが街を歩いているとその場所に合った楽曲をレコメンドしてくれるARアプリです。「“XR PARADE” created with TNXR」で展示したバージョンでは、虎ノ門ヒルズ・ステーションタワー・B2Fアトリウム内におけるユーザーの場所に基づいて楽曲をレコメンドします。使用したツールは以下のとおりです。
+「Walking DJ」は、ユーザーが街を歩いているとその場所に合った楽曲をレコメンドしてくれるARアプリです。「“XR PARADE” created with TNXR」で展示したバージョンでは、虎ノ門ヒルズ・ステーションタワー・B2Fアトリウム内におけるユーザーの場所に基づいて楽曲をレコメンドします。使用したツールは主に以下のとおりです。
 
 - Unity
 - [Spotify API](https://developer.spotify.com/documentation/web-api)
@@ -62,7 +62,7 @@ Select Trackボタンを押した際に、選ばれた楽曲の情報が保存�
 以上のようなユーザー体験を実現するために、システムは以下の流れで動作しています。
 
 A. Spotify APIのアクセストークンを取得
-B. Immersalを使ってユーザーの座標を取得
+B. VPSを使ってユーザーの座標を取得
 C. ユーザーの座標に基づいてSpotify APIから楽曲情報を取得し表示
 D. unity-webiviewを使って取得した楽曲を再生
 E. 取得した楽曲の情報を紐づけた3Dオブジェクト（ARレコード）をAR空間に配置
@@ -124,10 +124,16 @@ Application.OpenURL(authUrl);
 
 #### 2. ログインに成功したらSpotify Web APIに認証コードを要求する
 
-外部ブラウザ（Safariなど）で開かれたSpotifyアカウントのログインページにおいてユーザがログインに成功したら、Spotify Web APIに認証コードを要求する処理が実行されます。
+外部ブラウザ（Safariなど）で開かれたSpotifyアカウントのログインページにおいてユーザーがログインに成功したら、Spotify Web APIに認証コードを要求する処理が実行されます。（ただし、楽曲を再生するためのアクセストークンを取得するには、Premiumアカウントにログインする必要があります。）
 
 ![](/images/tnxr-walking-dj/login_page.jpg =200x)
 *Spotifyアカウントログインページ*
+
+:::message
+アプリがdevelopment modeだったため、あらかじめSpotify for DevelopersサイトのDashboardのUser Managementで、ログインするユーザーのEmailアドレスを登録する必要がありました。ここに登録していないと、ログインに成功してもアクセストークンが取得できませんでした。
+![](/images/tnxr-walking-dj/user_management.png)
+*DashboardのUser Management*
+:::
 
 #### 3. 認証コードが返ってきたらアプリを再度開く
 
@@ -136,7 +142,7 @@ Spotify Web APIから認証コードが返ってきたら以前設定したRedir
 ![](/images/tnxr-walking-dj/custom_url_scheme.png)
 *URL Schemeの設定*
 
-この設定により、ユーザはログイン後アプリに戻ることができます。
+この設定により、ユーザーはログイン後アプリに戻ることができます。
 
 ![](/images/tnxr-walking-dj/return_to_app.jpg =200x)
 *アプリに戻る*
@@ -202,13 +208,13 @@ private string tokenEndpoint = "https://accounts.spotify.com/api/token";
 private IEnumerator ExchangeCodeForToken(string code)
 {
     // リクエストの準備
-    var request = new UnityWebRequest(tokenEndpoint, "POST");
+    UnityWebRequest request = new UnityWebRequest(tokenEndpoint, "POST");
     var form = new WWWForm();
     form.AddField("grant_type", "authorization_code");
     form.AddField("code", code);
     form.AddField("redirect_uri", redirectUri);
-    form.AddField("client_id", _clientId);
-    form.AddField("client_secret", _clientSecret);
+    form.AddField("client_id", clientId);
+    form.AddField("client_secret", clientSecret);
     request.uploadHandler = new UploadHandlerRaw(form.data);
     request.downloadHandler = new DownloadHandlerBuffer();
     request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -285,17 +291,17 @@ private IEnumerator RequestClientCredentialsToken()
     string url = "https://accounts.spotify.com/api/token";
     WWWForm form = new WWWForm();
     form.AddField("grant_type", "client_credentials");
-    UnityWebRequest www = UnityWebRequest.Post(url, form);
+    UnityWebRequest request = UnityWebRequest.Post(url, form);
     string auth = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(clientId + ":" + clientSecret));
-    www.SetRequestHeader("Authorization", "Basic " + auth);
+    request.SetRequestHeader("Authorization", "Basic " + auth);
 
     // リクエストの送信
-    yield return www.SendWebRequest();
+    yield return request.SendWebRequest();
 
-    if (www.result == UnityWebRequest.Result.Success)
+    if (request.result == UnityWebRequest.Result.Success)
     {
         // アクセストークンの取得に成功した場合の処理
-        var jsonResponse = www.downloadHandler.text;
+        var jsonResponse = request.downloadHandler.text;
         // JSONをパースしてアクセストークンを取り出す
         TokenResponse tokenResponse = JsonUtility.FromJson<TokenResponse>(jsonResponse);
         accessToken = tokenResponse.access_token; // アクセストークン
@@ -304,7 +310,7 @@ private IEnumerator RequestClientCredentialsToken()
     else
     {
         // アクセストークンの取得に失敗した場合の処理
-        Debug.LogError("Error: " + www.error);
+        Debug.LogError("Error: " + request.error);
     }
 }
 
@@ -323,7 +329,7 @@ public class TokenResponse
 
 アクセストークンには有効期限があります（1時間だったかな）。以前取得したアクセストークンの有効期限が切れた場合、新たなアクセストークンを取得する必要があります。
 Client Credentials Flowで取得したアクセストークンの有効期限が切れた場合は、再度アクセストークンを要求する処理を実行すればいいだけです。
-ただ、Authorization Code Flowで取得したアクセストークンの有効期限が切れるたびにユーザにログインしてもらうのは面倒です。そこで、最初にアクセストークンを取得した際に同時に取得したリフレッシュトークンを使うことで、ユーザにログインしてもらう必要なくアクセストークンを再取得することができます。
+ただ、Authorization Code Flowで取得したアクセストークンの有効期限が切れるたびにユーザーにログインしてもらうのは面倒です。そこで、最初にアクセストークンを取得した際に同時に取得したリフレッシュトークンを使うことで、ユーザーにログインしてもらう必要なくアクセストークンを再取得することができます。
 
 :::details リフレッシュトークンを使ってアクセストークンを再取得する処理の内容
 ```csharp:SpotifyManager
@@ -336,26 +342,24 @@ private IEnumerator RefreshAccessTokenForPlay()
     form.AddField("refresh_token", refreshTokenForPlay);
     form.AddField("client_id", clientId);
     form.AddField("client_secret", clientSecret);
+    UnityWebRequest request = UnityWebRequest.Post(url, form);
 
-    using (UnityWebRequest webRequest = UnityWebRequest.Post(url, form))
+    // リクエストの送信
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
     {
-        // リクエストの送信
-        yield return webRequest.SendWebRequest();
-
-        if (webRequest.result == UnityWebRequest.Result.Success)
-        {
-            // アクセストークンの再取得に失敗した場合の処理
-            var jsonResponse = webRequest.downloadHandler.text;
-            // JSONをパースしてアクセストークンを取り出す
-            var responseData = JsonUtility.FromJson<RefreshTokenResponse>(jsonResponse);
-            accessTokenForPlay = responseData.access_token; // アクセストークンの更新
-            tokenForPlayExpiryTime = DateTime.Now.AddSeconds(responseData.expires_in); // アクセストークンの有効期限の更新
-        }
-        else
-        {
-            // アクセストークンの再取得に失敗した場合の処理
-            Debug.LogError("Error refreshing token: " + webRequest.error);
-        }
+        // アクセストークンの再取得に成功した場合の処理
+        var jsonResponse = request.downloadHandler.text;
+        // JSONをパースしてアクセストークンを取り出す
+        var responseData = JsonUtility.FromJson<RefreshTokenResponse>(jsonResponse);
+        accessTokenForPlay = responseData.access_token; // アクセストークンの更新
+        tokenForPlayExpiryTime = DateTime.Now.AddSeconds(responseData.expires_in); // アクセストークンの有効期限の更新
+    }
+    else
+    {
+        // アクセストークンの再取得に失敗した場合の処理
+        Debug.LogError("Error refreshing token: " + request.error);
     }
 }
 
@@ -369,13 +373,458 @@ public class RefreshTokenResponse
 ```
 :::
 
-# B. Immersalを使ってユーザーの座標を取得
-// 精度が悪くなった時の処理
+# B. VPSを使ってユーザーの座標を取得
+
+次に、アトリウムにおけるユーザーの座標を取得します。
+
+![](/images/tnxr-walking-dj/get_position_flow.png)
+*ユーザーの座標を取得して表示する流れ*
+
+ユーザーの座標取得には、都市XR実装コミュニティ「TNXR」内部で提供されるToranomon SDKのVPS機能を使用しています。このVPS機能には[Immersal](https://immersal.com/)が使われています。
+
+ユーザーがデバイスのカメラで周囲の物理空間をスキャンし、一度ローカライズに成功するとAR空間にグリッドの描かれた平面が配置されるようにします。この平面上でユーザーの座標を計算します。
+また、平面が配置されたタイミングでその平面を複製して、VPS機能からは独立して配置しておきます。もしVPSのローカライズが不安定になったら元の平面の位置がズレてユーザーの座標を正しく計算できなくなります。その際は、複製された平面を使ってユーザーの座標を計算するようにします。
+
+![](/images/tnxr-walking-dj/map.png)
+*アトリウムにおけるユーザーの座標と音楽特性の対応イメージ（再掲）*
+
+ユーザーの位置に相当する`MainCamera`の座標を定期的に取得し、それを平面を基準としたローカル座標に変換してから正規化しUIに表示させます。正規化することで、次のステップにおいてユーザーの座標と楽曲の音楽特性（Energy, Danceability）を対応させやすくします。
+
+:::details ユーザーの座標を取得する処理の内容
+```csharp:PlayerController
+public Camera mainCamera; // MainCamera
+public GameObject plane; // 平面
+public float planeSizeX; // 平面の幅
+public float planeSizeZ; // 平面の奥行き
+
+private Vector2 UpdatePlayerPositionOnPlane()
+{    
+    // MainCameraのワールド座標を平面のローカル座標に変換
+    Vector3 localPosition = plane.transform.InverseTransformPoint(mainCamera.transform.position);
+    // 平面のサイズに基づいて座標を正規化
+    Vector2 normalizedPosition = new Vector2(
+        Mathf.InverseLerp(- planeSizeX / 2, planeSizeX / 2, localPosition.x),
+        Mathf.InverseLerp(- planeSizeZ / 2, planeSizeZ / 2, localPosition.z)
+    );
+
+    return normalizedPosition;
+}
+```
+:::
 
 # C. ユーザーの座標に基づいてSpotify APIから曲の情報を取得し表示
-// プレイリストの取得もここで説明
+
+Spotify APIのアクセストークンとユーザーの座標の両方を取得できたら、続いてユーザーの座標に基づいてSpotify APIから楽曲を取得します。
+
+![](/images/tnxr-walking-dj/get_song_flow.png)
+*ユーザーの座標に基づいて曲の情報を取得し表示する流れ*
+
+ここで行う処理は、大きく分けて以下の2つです。
+
+1. アクセストークン取得後にSpotify Web APIから楽曲のプレイリストと各楽曲の音楽特性を取得する
+2. Select Trackボタンが押された時のユーザーの座標と各楽曲の音楽特性を比較し最も近い楽曲を選ぶ
+
+#### 1. アクセストークン取得後にSpotify Web APIから楽曲のプレイリストと各楽曲の音楽特性を取得する
+
+アクセストークンが取得できたタイミング（通常はアプリ起動直後）で、Spotify Web APIから楽曲の情報を集めます。
+今回は、以下のSpotify公式のプレイリスト4つから楽曲を25曲ずつ、計100曲の情報を集めました（TOKYOという名のつくプレイリストをピックアップしました）。
+
+- [Tokyo Super Hits!](https://open.spotify.com/playlist/37i9dQZF1DXafb0IuPwJyF)（"日本の最新ヒットソング特集）
+- [Tokyo Rising](https://open.spotify.com/playlist/37i9dQZF1DWX9u2doQ8Q2L)（若手日本アーティスト特集）
+- [Road Trip To Tokyo](https://open.spotify.com/playlist/37i9dQZF1DWV8IND7NkP2W)（インスト楽曲特集）
+- [Tokyo City Pop 記憶の記録LIBRARY](https://open.spotify.com/playlist/37i9dQZF1DX4CovPIZya4z)（シティポップ特集）
+
+各プレイリストにはIDが付与されていて、URLの末尾に記載されています（例: [Tokyo Super Hits!](https://open.spotify.com/playlist/37i9dQZF1DXafb0IuPwJyF)のURLは`https://open.spotify.com/playlist/37i9dQZF1DXafb0IuPwJyF`なのでIDは`37i9dQZF1DXafb0IuPwJyF`）。
+また各楽曲にもIDが付与されていて、URLの末尾に記載されています（例: [東京砂漠](https://open.spotify.com/intl-ja/track/04WsSAv2YHpDA4ft52wcTm)のURLは`http://open.spotify.com/track/04WsSAv2YHpDA4ft52wcTm`なのでIDは`04WsSAv2YHpDA4ft52wcTm`）。
+Unity Web Requestを使って、各プレイリストからそこに含まれる楽曲のIDを取得して、それらのIDをまとめたリストを作成します。
+
+:::details Spotifyのプレイリストから楽曲のIDを集める処理の内容
+`playlistId`はプレイリストのID、`limit`はプレイリストから取得した楽曲の数（今回は25）、`trackIds`は取得した楽曲のIDを追加していくリストです。
+```csharp:SpotifyManager
+private IEnumerator GetTracksFromPlaylist(string playlistId, int limit, List<string> trackIds)
+{
+    // リクエストの準備
+    string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}";
+    UnityWebRequest request = UnityWebRequest.Get(url);
+    request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+    // リクエストの送信
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        // プレイリストの取得に成功した場合の処理
+        var jsonResponse = www.downloadHandler.text;
+        // JSONをパースして楽曲のIDを取り出す
+        PlaylistTracks playlistTracks = JsonUtility.FromJson<PlaylistTracks>(jsonResponse);
+        foreach (var item in playlistTracks.items)
+        {
+            // 各楽曲のIDをリストに追加する
+            trackIds.Add(item.track.id);
+        }
+    }
+    else
+    {
+        // プレイリストの取得に失敗した場合の処理
+        Debug.LogError("Error: " + request.error);
+    }
+}
+
+// APIから受け取ったJSON形式のレスポンスを変換するためのクラス
+[System.Serializable]
+public class PlaylistTracks
+{
+    public PlaylistTrackItem[] items;
+}
+[System.Serializable]
+public class PlaylistTrackItem
+{
+    public Track track;
+}
+[System.Serializable]
+public class Track
+{
+    public string id;
+    public string name;
+    public Artist[] artists;
+    public Album album;
+}
+```
+:::
+
+続いて、各楽曲の音楽特性を取得します。Spotifyは各楽曲の音楽特性（Audio Features）を数値化しています。音楽特性には、Walking DJで使用しているEnergyやDanceabilityのほかにもValence（ポジティブさ）などがあり、それぞれ0から1の間で数値化されています（例: [Bling-Bang-Bang-Born](https://open.spotify.com/intl-ja/track/0kdqcbwei4MDWFEX5f33yG)のEnergyは0.822、Danceabilityは0.853、Valenceは0.746）。
+
+（参考）
+https://developer.spotify.com/documentation/web-api/reference/get-audio-features
+
+Unity Web Requestを使って、先ほどIDを取得した楽曲の音楽特性を取得します。
+
+:::details 各楽曲の音楽特性を取得する処理の内容
+```csharp:SpotifyManager
+public IEnumerator GetAudioFeatures(List<string> trackIds)
+{    
+    // リクエストの準備
+    string ids = string.Join(",", trackIds);
+    string url = $"https://api.spotify.com/v1/audio-features?ids={ids}";
+    UnityWebRequest request = UnityWebRequest.Get(url);
+    request.SetRequestHeader("Authorization", "Bearer " + _accessToken);
+
+    // リクエストの送信
+    yield return www.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        // 音楽特性の取得に成功した場合の処理
+        var jsonResponse = www.downloadHandler.text;
+        // JSONをパースして音楽特性を取り出す
+        AudioFeaturesResponse audioFeaturesResponse = JsonUtility.FromJson<AudioFeaturesResponse>(jsonResponse);
+        List<AudioFeatures> audioFeaturesList = new List<AudioFeatures>(audioFeaturesResponse.audio_features);
+    }
+    else
+    {
+        // 音楽特性の取得に失敗した場合の処理
+        Debug.LogError("Error: " + request.error);
+    }
+}
+
+// APIから受け取ったJSON形式のレスポンスを変換するためのクラス
+[System.Serializable]
+public class AudioFeaturesResponse
+{
+    public AudioFeatures[] audio_features;
+}
+[System.Serializable]
+public class AudioFeatures
+{
+    public float danceability;
+    public float energy;
+    public float loudness;
+    public float speechiness;
+    public float acousticness;
+    public float instrumentalness;
+    public float liveness;
+    public float valence;
+    public float tempo;
+    public string id;
+}
+```
+:::
+
+#### 2. Select Trackボタンが押された時のユーザーの座標と各楽曲の音楽特性を比較し最も近い楽曲を選ぶ
+
+ユーザーがアプリのSelect Trackボタンを押したら、その時のユーザーの座標と先述のステップで取得した各楽曲の音楽特性を比較します。ユーザーのX座標と各楽曲のEnergyの値の差、ユーザーのY座標と各楽曲のDanceabilityの値の差を計算し、それらが最も小さい楽曲、すなわちユーザーの座標と音楽特性（Energy, Danceability）が最も近い楽曲をピックアップします。
+
+:::details 最も近い楽曲を選ぶ処理の内容
+```csharp:SpotifyManager
+private AudioFeatures selectedTrack;
+public float distanceThreshold;
+
+public void FindClosestTrack(float userPositionX, float userPositionY)
+{
+    AudioFeatures closestTrack = null;
+    float closestDistance = float.MaxValue;
+
+    foreach (var track in _audioFeaturesList)
+    {
+        float energyDistance = Mathf.Abs(track.energy - userPositionX);
+        float danceabilityDistance = Mathf.Abs(track.danceability - userPositionY);
+        float distance = energyDistance + danceabilityDistance;
+        if (distance < closestDistance)
+        {
+            closestDistance = distance;
+            closestTrack = track;
+            if (energyDistance < distanceThreshold && danceabilityDistance < distanceThreshold)
+            {
+                // ユーザーの座標と一定水準より近かったら、その後の楽曲との比較はスキップする
+                break;
+            }
+        }
+    }
+    selectedTrack = closestTrack;
+}
+```
+:::
+
+選ばれた楽曲のIDから、Unity Web Requestを使ってその楽曲の情報（曲名、アーティスト名、ジャケット画像）を取得します。
+
+:::details 選ばれた楽曲の情報を取得する処理の内容
+```csharp:SpotifyManager
+public IEnumerator GetTrackInfo(string trackId)
+{   
+    // リクエストの準備 
+    string url = $"https://api.spotify.com/v1/tracks/{trackId}";
+    UnityWebRequest request = UnityWebRequest.Get(url);
+    request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+    // リクエストの送信
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        // 楽曲情報の取得に成功した場合の処理
+        var jsonResponse = www.downloadHandler.text;
+        // JSONをパースして楽曲情報を取り出す
+        Track track = JsonUtility.FromJson<Track>(jsonResponse);
+    }
+    else
+    {
+        // 楽曲情報の取得に失敗した場合の処理
+        Debug.LogError("Error: " + request.error);
+    }
+}
+
+// APIから受け取ったJSON形式のレスポンスを変換するためのクラス
+[System.Serializable]
+public class Track
+{
+    public string id;
+    public string name;
+    public Artist[] artists;
+    public Album album;
+}
+[System.Serializable]
+public class Artist
+{
+    public string name;
+}
+[System.Serializable]
+public class Album
+{
+    public Image[] images;
+}
+[System.Serializable]
+public class Image
+{
+    public string url;
+}
+```
+:::
+
+そして、取得した楽曲の情報をアプリ画面に表示します。
+
+![](/images/tnxr-walking-dj/display_track_info.jpg =200x)
+*選ばれた楽曲の情報を表示するアプリ画面*
 
 # D. unity-webiviewを使って取得した曲を再生
+
+楽曲が選ばれた後、ユーザーがPlay Trackボタンを押したらその楽曲が再生されるようにします。
+
+![](/images/tnxr-walking-dj/play_track_flow.png)
+*楽曲を再生する流れ*
+
+具体的な仕組みとしては、[unity-webview](https://github.com/gree/unity-webview)を使ってアプリ内でhtmlファイルを開き、そのhtmlファイル内で[Spotify Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk)というJavaScriptライブラリを使って楽曲を再生します。
+
+:::message
+Unityアプリ内でhtmlファイルを開けるアセットとして[UniWebView](https://docs.uniwebview.com/)もありますが、こちらを使ってhtmlファイルを開いたところ楽曲は再生されませんでした（原因未解明）。
+:::
+
+まず、unity-webviewを使ってWeb Viewを実装しアプリ内でhtmlファイルを開けるようにします。
+
+:::details htmlファイルを開く処理の内容
+```csharp:WebViewController
+private WebViewObject webViewObject;
+
+public void OpenWebView()
+{
+    webViewObject = (new GameObject("WebViewObject")).AddComponent<WebViewObject>();
+    webViewObject.Init(
+        // Webページが読み込まれた時の処理
+        ld: (msg) =>
+        {
+            Debug.Log(string.Format("CallOnLoaded[{0}]", msg));
+        },
+        enableWKWebView: true);
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+    _webViewObject.bitmapRefreshCycle = 1;
+#endif
+    // webページ自体は非表示に
+    _webViewObject.SetVisibility(false);
+    // ローカルのhtmlファイルをロード
+    string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, "spotify_player.html");
+    _webViewObject.LoadURL("file://" + filePath.Replace(" ", "%20"));
+}
+```
+:::
+
+以下のようなhtmlファイルをStreamingAssetsフォルダ内に配置し、このローカルhtmlファイルをWeb Viewで開きます。開くのに時間がかかるので、実際にはアプリの起動時に開くようにしています。
+
+::: details 楽曲を再生するためのhtmlファイルの内容
+```html:spotify_player.html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Spotify Player</title>
+    </head>
+    <body>
+        <script src="https://sdk.scdn.co/spotify-player.js"></script>
+        <script>
+            var token = '';
+            var trackId = '';
+            var player = null;
+            
+            // console.logをUnityに送信する
+            window.console.log = function(...args) {
+                const message = args.map(arg => {
+                    if (typeof arg === 'object') {
+                        try {
+                            return JSON.stringify(arg);
+                        } catch(e) {
+                            return '[Object]';
+                        }
+                    }
+                    return arg;
+                }).join(' ');
+                Unity.call(message);
+            }
+
+            // WebViewControllerからtokenとtrackUriを受け取る
+            function receiveData(newToken, newTrackId) {
+                token = newToken;
+                trackId = newTrackId;
+                console.log('Token: ', token, 'Track Id: ', trackId);
+                
+                // 既存のプレイヤーが存在する場合は、まず削除する
+                if (player) {
+                    console.log('Destroying existing player instance.');
+                    player.disconnect();
+                    player = null;
+                }
+                
+                // 新しいプレイヤーの初期化
+                player = new Spotify.Player({
+                    name: 'Web Playback SDK Player',
+                    getOAuthToken: cb => { cb(token); },
+                    volume: 1
+                });
+                
+                // プレイヤーのリスナーを追加してトラックを再生する
+                player.addListener('ready', ({ device_id }) => {
+                    console.log('Ready with Device ID', device_id);
+                    var trackUri = 'spotify:track:' + trackId;
+                    playTrack(device_id, trackUri);
+                });
+
+                // エラーハンドリング
+                player.addListener('not_ready', ({ device_id }) => {
+                    console.log('Device ID has gone offline', device_id);
+                });
+
+                player.addListener('initialization_error', ({ message }) => {
+                    console.error(message);
+                });
+
+                player.addListener('authentication_error', ({ message }) => {
+                    console.error(message);
+                });
+
+                player.addListener('account_error', ({ message }) => {
+                    console.error(message);
+                });
+
+                player.connect();
+            }
+            
+            window.onSpotifyWebPlaybackSDKReady = () => {
+                console.log('Spotify Web Playback SDK is ready');
+            };
+
+            // 楽曲を再生する関数
+            function playTrack(deviceId, trackUri) {
+                fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ uris: [trackUri] }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('Track is playing!');
+                    } else {
+                        console.error('Error playing track', response.status, response.statusText);
+                    }
+                }).catch(error => {
+                    console.error('Error: ', error);
+                });
+            }
+            
+            // 楽曲の再生を停止する関数
+            function stopTrack() {                
+                if (player) {
+                    player.pause().then(() => {
+                        console.log('Track has been paused.');
+                        player.disconnect();
+                        player = null;
+                    }).catch(error => {
+                        console.log('Error pausing track: ', error);
+                    });
+                } else {
+                    console.error('No player instance found.');
+                }
+            }
+        </script>
+    </body>
+</html>
+```
+:::
+
+Play Trackボタンが押されたら、アクセストークン（Authorization Code Flowで取得されたほう）と楽曲IDを渡して、htmlファイル内の楽曲再生用の関数を実行します。同様に、Stop Trackボタンが押されたらhtmlファイル内の楽曲再生停止用の関数を実行します。
+
+```csharp:WebViewController
+// Web View上で楽曲を再生する
+public void PlayTrackOnWebView(string token, string trackId)
+{
+    // htmlファイル内のJavaScript関数を呼び出す
+    webViewObject.EvaluateJS($"receiveData('{token}', '{trackId}');");
+}
+
+// Web View上の楽曲の再生を止める
+public void StopTrackOnWebView()
+{
+    // htmlファイル内のJavaScript関数を呼び出す
+    webViewObject.EvaluateJS("stopTrack();");
+}
+```
 
 # E. 取得した曲の情報を紐づけた3Dオブジェクト（ARレコード）をAR空間に配置
 
