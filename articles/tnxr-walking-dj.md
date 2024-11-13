@@ -2,11 +2,11 @@
 title: "Walking DJ 開発記録"
 emoji: "💿"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["unity", "csharp", "html", "javascript"]
+topics: ["unity", "csharp", "api", "ios", "javascript"]
 published: true
 ---
 # はじめに
-2024年10月に虎ノ門ヒルズで開催されたプログラム「TOKYO NODE OPEN LAB 2024 “XR PARADE” created with TNXR」にて、音楽レコメンドARアプリ「Walking DJ」を開発・展示しました。本記事では、このアプリの開発過程をまとめたいと思います。特に、UnityとSpotify APIの連携について詳しめに記録するので、UnityでSpotify APIを活用したい人の参考になれば幸いです。
+2024年10月に虎ノ門ヒルズで開催されたプログラム「[TOKYO NODE OPEN LAB 2024 “XR PARADE” created with TNXR](https://www.tokyonode.jp/lab/events/openlab2024_xr_parade/index.html)」にて、音楽レコメンドARアプリ「Walking DJ」を開発・展示しました。本記事では、このアプリの開発過程をまとめたいと思います。特に、UnityとSpotify APIの連携について詳しめに記録するので、UnityでSpotify APIを活用したい人の参考になれば幸いです。
 
 ## Walking DJ 概要
 「Walking DJ」は、ユーザーが街を歩いているとその場所に合った楽曲をレコメンドしてくれるARアプリです。「“XR PARADE” created with TNXR」で展示したバージョンでは、虎ノ門ヒルズ・ステーションタワー・B2Fアトリウム内におけるユーザーの場所に基づいて楽曲をレコメンドします。
@@ -35,7 +35,7 @@ TOKYO NODE OPEN LAB 2024の一環として、虎ノ門ヒルズ・ステーシ�
 https://www.tokyonode.jp/lab/events/openlab2024_xr_parade/index.html
 
 # ユーザー体験
-アプリのユーザー体験は以下のような流れになっています。
+Walking DJのユーザー体験は以下のような流れになっています。
 
 #### 0. スマホのカメラで周囲の景色を映して、空間をスキャンする
 アプリ起動直後は、ユーザーの位置を特定するためにスマホのカメラで周囲の景色を見渡す必要があります（特定まで数秒から十秒ほどかかります）。
@@ -68,15 +68,15 @@ Select Trackボタンを押した際に、選ばれた楽曲の情報が保存�
 A. Spotify APIのアクセストークンを取得
 B. VPSを使ってユーザーの座標を取得
 C. ユーザーの座標に基づいてSpotify APIから楽曲情報を取得し表示
-D. unity-webiviewを使って取得した楽曲を再生
-E. 取得した楽曲の情報を紐づけた3Dオブジェクト（ARレコード）をAR空間に配置
+D. unity-webiviewを使って楽曲を再生
+E. 楽曲の情報を紐づけた3Dオブジェクト（ARレコード）をAR空間に配置
 
 システム構成図は以下のようになっています（こういう書き方で良いのかわかりませんが）。
 ![](/images/tnxr-walking-dj/system_config.png)
 *Walking DJ システム構成図*
 
 以下の章では、システムの各ステップの詳細を説明したいと思います。
-説明のために一部実際のコードを変更・簡略化している箇所があります。
+説明のために一部、実際のコードから変更・簡略化している箇所があります。
 
 # A. Spotify APIのアクセストークンを取得
 本アプリでは、楽曲情報の取得や再生にSpotify APIを使用しています。
@@ -85,9 +85,9 @@ E. 取得した楽曲の情報を紐づけた3Dオブジェクト（ARレコー�
 - [Authorization Code Flow](https://developer.spotify.com/documentation/web-api/tutorials/code-flow)（楽曲の再生向け、ログイン必要）
 - [Client Credentials Flow](https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow)（楽曲情報の取得向け、ログイン不要）
 
-1つ目のAuthorization Code Flowは楽曲情報の取得と再生の両方に対応していますが、Spotifyアカウントへのログインが必要です。この方法のみを使用した場合、ログインができなくなるとすべての機能が使えなくなる恐れがあります。
+1つ目のAuthorization Code Flowは楽曲情報の取得と再生の両方に対応していますが、Spotifyアカウントへのログインが必要です。この方法のみを使用した場合、ログインできなくなるとすべての機能が使えなくなる恐れがあります。
 2つ目のClient Credentials Flowは楽曲情報の取得のみ可能で楽曲の再生には対応していませんが、Spotifyアカウントにログインする必要がありません。
-そのため、万が一に備えて2つの方法を併用しています。
+そのため、トラブルに備えて2つの方法を併用しています。
 
 ![](/images/tnxr-walking-dj/access_token_flow.png)
 *アクセストークン取得の流れ*
@@ -134,14 +134,14 @@ Application.OpenURL(authUrl);
 *Spotifyアカウントログインページ*
 
 :::message
-アプリがdevelopment modeだったため、あらかじめSpotify for DevelopersサイトのDashboardのUser Managementで、ログインするユーザーのEmailアドレスを登録する必要がありました。ここに登録していないと、ログインに成功してもアクセストークンが取得できませんでした。
+アプリがdevelopment modeだったため、あらかじめSpotify for DevelopersサイトのDashboardのUser Managementで、ログインするユーザーのEmailアドレスを登録する必要がありました。ここに登録していないと、ログインに成功してもアクセストークンが取得できません。
 ![](/images/tnxr-walking-dj/user_management.png)
 *DashboardのUser Management*
 :::
 
 #### 3. 認証コードが返ってきたらアプリを再度開く
 
-Spotify Web APIから認証コードが返ってきたら以前設定したRedirect URIにリダイレクトされます。リダイレクトされた際にアプリが再度開くように、URL Schemeを設定します。Unityの`Project Settings > Player > Other Settings > Supported URL schemes`に、Redirect URIのスキーム（例: `myapp`）を入力します。
+Spotify Web APIから認証コードが返ってきたら、以前設定したRedirect URIにリダイレクトされます。リダイレクトされた際にアプリが再度開くように、URL Schemeを設定します。Unityの`Project Settings > Player > Other Settings > Supported URL schemes`に、Redirect URIのスキーム（例: `myapp`）を入力します。
 
 ![](/images/tnxr-walking-dj/custom_url_scheme.png)
 *URL Schemeの設定*
@@ -392,7 +392,7 @@ public class RefreshTokenResponse
 ![](/images/tnxr-walking-dj/map.png)
 *アトリウムにおけるユーザーの座標と音楽特性の対応イメージ（再掲）*
 
-ユーザーの位置に相当する`MainCamera`の座標を定期的に取得し、それを平面を基準としたローカル座標に変換してから正規化しUIに表示させます。正規化することで、次のステップにおいてユーザーの座標と楽曲の音楽特性（Energy, Danceability）を対応させやすくします。
+ユーザーの位置に相当する`MainCamera`の座標を定期的に取得しそれを、平面を基準としたローカル座標に変換してから正規化しUIに表示させます。正規化することで、次のステップにおいてユーザーの座標と楽曲の音楽特性（Energy, Danceability）を対応させやすくします。
 
 :::details ユーザーの座標を取得する処理の内容
 ```csharp:PlayerController
@@ -433,8 +433,8 @@ Spotify APIのアクセストークンとユーザーの座標の両方を取得
 アクセストークンが取得できたタイミング（通常はアプリ起動直後）で、Spotify Web APIから楽曲の情報を集めます。
 今回は、以下のSpotify公式のプレイリスト4つから楽曲を25曲ずつ、計100曲の情報を集めました（TOKYOという名のつくプレイリストをピックアップしました）。
 
-- [Tokyo Super Hits!](https://open.spotify.com/playlist/37i9dQZF1DXafb0IuPwJyF)（"日本の最新ヒットソング特集）
-- [Tokyo Rising](https://open.spotify.com/playlist/37i9dQZF1DWX9u2doQ8Q2L)（若手日本アーティスト特集）
+- [Tokyo Super Hits!](https://open.spotify.com/playlist/37i9dQZF1DXafb0IuPwJyF)（日本の最新ヒットソング特集）
+- [Tokyo Rising](https://open.spotify.com/playlist/37i9dQZF1DWX9u2doQ8Q2L)（日本の若手アーティスト特集）
 - [Road Trip To Tokyo](https://open.spotify.com/playlist/37i9dQZF1DWV8IND7NkP2W)（インスト楽曲特集）
 - [Tokyo City Pop 記憶の記録LIBRARY](https://open.spotify.com/playlist/37i9dQZF1DX4CovPIZya4z)（シティポップ特集）
 
@@ -443,7 +443,7 @@ Spotify APIのアクセストークンとユーザーの座標の両方を取得
 Unity Web Requestを使って、各プレイリストからそこに含まれる楽曲のIDを取得して、それらのIDをまとめたリストを作成します。
 
 :::details Spotifyのプレイリストから楽曲のIDを集める処理の内容
-`playlistId`はプレイリストのID、`limit`はプレイリストから取得した楽曲の数（今回は25）、`trackIds`は取得した楽曲のIDを追加していくリストです。
+`playlistId`はプレイリストのID、`limit`はプレイリストから取得したい楽曲の数（今回は25）、`trackIds`は取得した楽曲のIDを追加していくリストです。
 ```csharp:SpotifyManager
 private IEnumerator GetTracksFromPlaylist(string playlistId, int limit, List<string> trackIds)
 {
@@ -458,7 +458,7 @@ private IEnumerator GetTracksFromPlaylist(string playlistId, int limit, List<str
     if (request.result == UnityWebRequest.Result.Success)
     {
         // プレイリストの取得に成功した場合の処理
-        var jsonResponse = www.downloadHandler.text;
+        var jsonResponse = request.downloadHandler.text;
         // JSONをパースして楽曲のIDを取り出す
         PlaylistTracks playlistTracks = JsonUtility.FromJson<PlaylistTracks>(jsonResponse);
         foreach (var item in playlistTracks.items)
@@ -511,15 +511,15 @@ public IEnumerator GetAudioFeatures(List<string> trackIds)
     string ids = string.Join(",", trackIds);
     string url = $"https://api.spotify.com/v1/audio-features?ids={ids}";
     UnityWebRequest request = UnityWebRequest.Get(url);
-    request.SetRequestHeader("Authorization", "Bearer " + _accessToken);
+    request.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
     // リクエストの送信
-    yield return www.SendWebRequest();
+    yield return request.SendWebRequest();
 
     if (request.result == UnityWebRequest.Result.Success)
     {
         // 音楽特性の取得に成功した場合の処理
-        var jsonResponse = www.downloadHandler.text;
+        var jsonResponse = request.downloadHandler.text;
         // JSONをパースして音楽特性を取り出す
         AudioFeaturesResponse audioFeaturesResponse = JsonUtility.FromJson<AudioFeaturesResponse>(jsonResponse);
         List<AudioFeatures> audioFeaturesList = new List<AudioFeatures>(audioFeaturesResponse.audio_features);
@@ -568,7 +568,7 @@ public void FindClosestTrack(float userPositionX, float userPositionY)
     AudioFeatures closestTrack = null;
     float closestDistance = float.MaxValue;
 
-    foreach (var track in _audioFeaturesList)
+    foreach (var track in audioFeaturesList)
     {
         float energyDistance = Mathf.Abs(track.energy - userPositionX);
         float danceabilityDistance = Mathf.Abs(track.danceability - userPositionY);
@@ -606,7 +606,7 @@ public IEnumerator GetTrackInfo(string trackId)
     if (request.result == UnityWebRequest.Result.Success)
     {
         // 楽曲情報の取得に成功した場合の処理
-        var jsonResponse = www.downloadHandler.text;
+        var jsonResponse = request.downloadHandler.text;
         // JSONをパースして楽曲情報を取り出す
         Track track = JsonUtility.FromJson<Track>(jsonResponse);
     }
@@ -649,7 +649,7 @@ public class Image
 ![](/images/tnxr-walking-dj/display_track_info.jpg =200x)
 *選ばれた楽曲の情報を表示するアプリ画面*
 
-# D. unity-webiviewを使って取得した曲を再生
+# D. unity-webiviewを使って楽曲を再生
 
 楽曲が選ばれた後、ユーザーがPlay Trackボタンを押したらその楽曲が再生されるようにします。
 
@@ -679,13 +679,13 @@ public void OpenWebView()
         },
         enableWKWebView: true);
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-    _webViewObject.bitmapRefreshCycle = 1;
+    webViewObject.bitmapRefreshCycle = 1;
 #endif
     // webページ自体は非表示に
-    _webViewObject.SetVisibility(false);
+    webViewObject.SetVisibility(false);
     // ローカルのhtmlファイルをロード
     string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, "spotify_player.html");
-    _webViewObject.LoadURL("file://" + filePath.Replace(" ", "%20"));
+    webViewObject.LoadURL("file://" + filePath.Replace(" ", "%20"));
 }
 ```
 :::
@@ -830,9 +830,9 @@ public void StopTrackOnWebView()
 }
 ```
 
-# E. 取得した曲の情報を紐づけた3Dオブジェクト（ARレコード）をAR空間に配置
+# E. 楽曲の情報を紐づけた3Dオブジェクト（ARレコード）をAR空間に配置
 
-Select Trackボタンが押されたとき、選ばれた楽曲の情報をアプリ画面に表示するとともに、その情報と紐づいたレコード型の3Dオブジェクト（「ARレコード」と呼ぶことにします）をユーザーの目の前に配置します（ARレコードのモデルはBlenderで制作しました）。
+Select Trackボタンが押されたとき、選ばれた楽曲の情報をアプリ画面に表示するとともに、その情報と紐づいたレコード型の3Dオブジェクト（ARレコード）をユーザーの目の前に配置します（ARレコードのモデルはBlenderで制作しました）。
 
 ![](/images/tnxr-walking-dj/display_track_info.jpg =200x)
 *楽曲情報の表示とともに配置されるARレコード*
@@ -847,13 +847,12 @@ Play Trackボタンを押せば先述の仕組みで、表示されている楽�
 
 ### ヘルプ画面
 
-アプリの右下に常時表示されている「？」ボタンを押すと、ヘルプ画面が表示されるようにしています。
+アプリの右下に常時表示されている「？」ボタンを押すと、ヘルプ画面が表示されます。
+❶におけるグリッド上の黒い点は、ユーザーがそのとき実際にいる座標を示しています。また、❷と❸のボタンや❹のARレコードはタップできます。
+Canvas上でARレコードの3Dオブジェクトを表示させるために、[RenderTexture](https://docs.unity3d.com/ScriptReference/RenderTexture.html)を使用しています。
 
 ![](/images/tnxr-walking-dj/help.jpg =200x)
 *ヘルプ画面*
-
-①におけるグリッド上の黒い点は、ユーザーがそのとき実際にいる座標を示しています。また、②と③のボタンや④のARレコードはタップできます。
-Canvas上でARレコードの3Dオブジェクトを表示させるために、[RenderTexture](https://docs.unity3d.com/ScriptReference/RenderTexture.html)を使用しています。
 
 https://youtu.be/xX6Log7jtRs
 
@@ -878,7 +877,7 @@ https://youtu.be/qNxhklf2TS0
 体験していただいた方から、「ARレコードが何を意味するのか初見ではわからなかった」という声をいただき、改善の余地があると感じました。
 一方で、「ぷかぷか浮かんでいたから自然とタップしたくなった」という声もいただき、そのアニメーションをつけて良かったと思いました。
 
-また、タップされたARレコードには緑色の輪をつけることで、現在表示されている楽曲がどのARレコードに紐づいているのか視覚的にわかりやすくなるよう工夫しました。
+また、タップされたARレコードには緑色の輪をつけることで、現在表示されている楽曲がどのARレコードに紐づいているのか視覚的にわかりやすくなるよう工夫しました。さらに楽曲再生時には、Particle Systemを使ってARレコードから音符が湧き出すようにしました。
 
 https://youtu.be/8ir5xJRdct4
 
