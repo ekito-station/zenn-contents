@@ -1,15 +1,19 @@
 ---
-title: "Walking DJ 開発メモ"
+title: "Walking DJ 開発記録"
 emoji: "💿"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["unity", "csharp", "html", "javascript"]
-published: false
+published: true
 ---
 # はじめに
-2024年10月に虎ノ門ヒルズで開催されたプログラム「TOKYO NODE OPEN LAB 2024 “XR PARADE” created with TNXR」にて、音楽レコメンドARアプリ「Walking DJ」を開発・展示しました。本記事では、このアプリの開発過程をまとめたいと思います。
+2024年10月に虎ノ門ヒルズで開催されたプログラム「TOKYO NODE OPEN LAB 2024 “XR PARADE” created with TNXR」にて、音楽レコメンドARアプリ「Walking DJ」を開発・展示しました。本記事では、このアプリの開発過程をまとめたいと思います。特に、UnityとSpotify APIの連携について詳しめに記録するので、UnityでSpotify APIを活用したい人の参考になれば幸いです。
 
 ## Walking DJ 概要
-「Walking DJ」は、ユーザーが街を歩いているとその場所に合った楽曲をレコメンドしてくれるARアプリです。「“XR PARADE” created with TNXR」で展示したバージョンでは、虎ノ門ヒルズ・ステーションタワー・B2Fアトリウム内におけるユーザーの場所に基づいて楽曲をレコメンドします。使用したツールは主に以下のとおりです。
+「Walking DJ」は、ユーザーが街を歩いているとその場所に合った楽曲をレコメンドしてくれるARアプリです。「“XR PARADE” created with TNXR」で展示したバージョンでは、虎ノ門ヒルズ・ステーションタワー・B2Fアトリウム内におけるユーザーの場所に基づいて楽曲をレコメンドします。
+
+https://x.com/tokyonodelab/status/1843899202935644619
+
+使用したツールは主に以下のとおりです。
 
 - Unity
 - [Spotify API](https://developer.spotify.com/documentation/web-api)
@@ -837,9 +841,54 @@ Select Trackボタンが押されるたびにその場にARレコードをInstan
 以前配置されたARレコードをタップすると、そこに書き込まれている楽曲の情報が表示される仕組みになっています（ARレコードにアタッチされたスクリプトから楽曲のIDを取り出し、先述の仕組みと同様にしてUnity Web Requestを使ってその楽曲の情報を取得します）。
 Play Trackボタンを押せば先述の仕組みで、表示されている楽曲が再生されます。
 
-# その他（UIなど）
-// ヘルプやレコードぷかぷか、dotweenとか
+# UIデザイン
+
+最後にUIデザイン面で工夫した点をいくつか記録したいと思います。
+
+### ヘルプ画面
+
+アプリの右下に常時表示されている「？」ボタンを押すと、ヘルプ画面が表示されるようにしています。
+
+![](/images/tnxr-walking-dj/help.jpg =200x)
+*ヘルプ画面*
+
+①におけるグリッド上の黒い点は、ユーザーがそのとき実際にいる座標を示しています。また、②と③のボタンや④のARレコードはタップできます。
+Canvas上でARレコードの3Dオブジェクトを表示させるために、[RenderTexture](https://docs.unity3d.com/ScriptReference/RenderTexture.html)を使用しています。
+
+https://youtu.be/xX6Log7jtRs
+
+### UIアニメーション
+
+以下のUIのアニメーションに[DOTween](https://assetstore.unity.com/packages/tools/animation/dotween-hotween-v2-27676)を使用しています。
+
+#### 1. アプリ起動時にスマホを動かして空間をスキャンするよう指示するアニメーション
+
+アプリ起動直後に画面右上に表示されるスマホアイコンには、`DOLocalPath`でパスを使った曲線アニメーションを設定しています。
+
+https://youtu.be/nw43Pi4Upx8
+
+#### 2. 楽曲再生時のアニメーション
+
+楽曲再生時にジャケット画像の上に表示される水玉アイコンには、`DOScale`などで現れたり消えたりするアニメーションを設定しています。
+
+https://youtu.be/qNxhklf2TS0
+
+### ARレコード 
+
+体験していただいた方から、「ARレコードが何を意味するのか初見ではわからなかった」という声をいただき、改善の余地があると感じました。
+一方で、「ぷかぷか浮かんでいたから自然とタップしたくなった」という声もいただき、そのアニメーションをつけて良かったと思いました。
+
+また、タップされたARレコードには緑色の輪をつけることで、現在表示されている楽曲がどのARレコードに紐づいているのか視覚的にわかりやすくなるよう工夫しました。
+
+https://youtu.be/8ir5xJRdct4
 
 # おわりに
-// トラブルがなかったようで
-// ryuさんなど謝辞
+
+以上、Walking DJの開発過程についてまとめました。
+企画から開発まで一人で行ったりUnityとWeb APIの連携自体が初めてだったりかなりチャレンジングでしたが、展示期間中アプリは無事に動いていたようなのでホッとしています。
+
+海外から企画書を作ったりアプリを開発したりしていたなか、TNXRのメンバーの方々や現地テストの手伝いをしていただいた[ryu](https://x.com/arukana0813)さんなど多くの人にサポートしていただきました。ありがとうございました！
+
+https://x.com/tokyonodelab/status/1843821354438799413
+
+https://x.com/tokyonodelab/status/1854513160520397255
