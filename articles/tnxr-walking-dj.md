@@ -1,5 +1,5 @@
 ---
-title: "Walking DJ 開発記録"
+title: "Walking DJ 開発記録（TOKYO NODE OPEN LAB 2024 “XR PARADE”）"
 emoji: "💿"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["unity", "csharp", "api", "ios", "javascript"]
@@ -102,14 +102,12 @@ Authorization Code Flowでは、以下の流れでアクセストークンを取
 5. 認証コードを用いてSpotify Web APIにアクセストークンを要求する
 6. APIからアクセストークンを受け取る
 
-（参考）
 https://developer.spotify.com/documentation/web-api/tutorials/code-flow
 
 #### 1. アプリから外部ブラウザを起動しSpotifyアカウントのログインページを開く
 
 あらかじめ[Spotify for Developersサイト](https://developer.spotify.com/)のDashboardで、アプリのClient IDを取得しRedirect URI（例: `myapp://callback/`）を設定する必要があります。
 
-（参考）
 https://developer.spotify.com/documentation/web-api/tutorials/getting-started#create-an-app
 
 Client IDやRedirect URIなどから認証用URLを作成し、そのURLを外部ブラウザで開きます。
@@ -281,7 +279,6 @@ public class TokenResponseForPlay
 
 Client Credentials Flowでは、Spotifyアカウントにログインして認証コードを受け取るプロセスがいらないので、Unity Web Requestを使ってアクセストークンを要求して受け取る処理で済みます。
 
-（参考）
 https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow
 
 :::details アクセストークンを要求して受け取る処理の内容
@@ -498,7 +495,6 @@ public class Track
 
 続いて、各楽曲の音楽特性を取得します。Spotifyは各楽曲の音楽特性（Audio Features）を数値化しています。音楽特性には、Walking DJで使用しているEnergyやDanceabilityのほかにもValence（ポジティブさ）などがあり、それぞれ0から1の間で数値化されています（例: [Bling-Bang-Bang-Born](https://open.spotify.com/intl-ja/track/0kdqcbwei4MDWFEX5f33yG)のEnergyは0.822、Danceabilityは0.853、Valenceは0.746）。
 
-（参考）
 https://developer.spotify.com/documentation/web-api/reference/get-audio-features
 
 Unity Web Requestを使って、先ほどIDを取得した楽曲の音楽特性を取得します。
