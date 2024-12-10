@@ -3,7 +3,7 @@ title: "ARギターエフェクター with Meta Quest & Ableton Live"
 emoji: "🎸"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [unity, csharp, max]
-published: false
+published: true
 ---
 # 1 はじめに
 
@@ -47,12 +47,13 @@ https://zenn.dev/ekito_station/articles/tnxr-walking-dj
     - [Max for Live](https://www.ableton.com/ja/live/max-for-live/)
 
 システム全体像を図にすると、以下のようになります。
-1. まず、ギターをPCに接続してAbleton LiveというDAWを通して音を出します。
-2. 次に、Meta Questを被りARオブジェクトに向かってレーザー（レイ）を飛ばしたら、そのことをOSC通信でAbleton Liveに通知します。
-3. 通知を受け取ったAbleton LiveはエフェクターをONにします。
 
 ![](/images/ar-guitar-effector-intro/system_config.png)
 *システム構成図*
+
+1. まず、ギターをPCに接続してAbleton LiveというDAWを通して音を出します。
+2. 次に、Meta Questを被りARオブジェクトに向かってレーザー（レイ）を飛ばしたら、そのことをOSC通信でAbleton Liveに通知します。
+3. 通知を受け取ったAbleton LiveはエフェクターをONにします。
 
 これからシステムの実装について、Meta Quest側とAbleton Live側に分けて説明していきたいと思います。
 
@@ -165,7 +166,7 @@ public class OSCSender : MonoBehaviour
 
 続いてAbleton Liveで、OSCメッセージを受け取ってエフェクターのON/OFFを切り替えるプロジェクトを作成します。このとき、Ableton Liveの拡張機能であるMax for Liveを使用します。Max for Liveは、Maxというビジュアルプログラミング言語を活用してAbleton Liveの機能を制御することができます。
 
-Max for Liveの使い方は、[大黒淳一](https://www.youtube.com/@junichioguro)さんの動画シリーズで勉強させていただきました。大変参考になりました。
+Max for Liveの使い方は、[大黒淳一](https://www.youtube.com/@junichioguro)さんの動画シリーズで勉強させていただきました。大変参考になりました！
 
 https://youtu.be/zbR2oc3VGk8?feature=shared
 
@@ -232,6 +233,6 @@ https://youtu.be/0UXjz2GF3VU
 
 https://youtube.com/shorts/p2rnRnbST_o?feature=share
 
-今回はエフェクターのON/OFFを切り替える簡単なシステムでしたけれど、Max for Liveで制御できる要素は非常に多岐に渡りそうなので、今後さらに深掘りしていきたいと思います。
+今回はエフェクターのON/OFFを切り替える簡単なシステムでしたけれど、Max for Liveで制御できる要素はとても多岐に渡りそうなので、今後さらに深掘りしていきたいと思います。
 
 [Iwaken Lab. Advent Calendar 2024](https://qiita.com/advent-calendar/2024/iwakenlab)の明日の担当は[JJ](https://qiita.com/jjay)さんです。お楽しみに！
