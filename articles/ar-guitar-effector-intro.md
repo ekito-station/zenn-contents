@@ -2,7 +2,7 @@
 title: "ARギターエフェクター with Meta Quest & Ableton Live"
 emoji: "🎸"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [ar, unity, csharp, metaquest, max]
+topics: [ar, unity, csharp, metaquest, max, 音楽]
 published: true
 ---
 # 1 はじめに
