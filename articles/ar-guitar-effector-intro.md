@@ -231,7 +231,7 @@ https://youtu.be/0UXjz2GF3VU
 
 2年ちょっと前、ARを始めたての頃に「ギターの弦を街に張り巡らせてみたら？」というアイデアを実装したことがあったので、またARとギターを組み合わせられて原点回帰できた感があります。
 
-https://youtube.com/shorts/p2rnRnbST_o?feature=share
+https://youtu.be/p2rnRnbST_o
 
 今回はエフェクターのON/OFFを切り替える簡単なシステムでしたけれど、Max for Liveで制御できる要素はとても多岐に渡りそうなので、今後さらに深掘りしていきたいと思います。
 
