@@ -88,10 +88,10 @@ https://zenn.dev/ekito_station/articles/ar-guitar-effector-intro
 
 #### 2.3.1.1 ギターのヘッドを3Dスキャン
 
-[Object Capture](https://developer.apple.com/documentation/realitykit/realitykit-object-capture/)が組み込まれたiOSアプリを使用して、ギターのヘッドを3Dスキャンします (Object Captureとは、フォトグラメトリを使用して3Dモデルを作成できるAPIです)。私は、「[KIRI Engine:3D Scanner & LiDAR](https://apps.apple.com/jp/app/kiri-engine-3d-scanner-lidar/id1577127142)」というアプリを使用しました。
+[Object Capture](https://developer.apple.com/documentation/realitykit/realitykit-object-capture/)が組み込まれたiOSアプリを使用して、ギターのヘッドを3Dスキャンして3Dモデルを作成します (Object Captureとは、フォトグラメトリを使用して3Dモデルを作成できるAPIです)。私は、「[KIRI Engine:3D Scanner & LiDAR](https://apps.apple.com/jp/app/kiri-engine-3d-scanner-lidar/id1577127142)」というアプリを使用しました。
 
 ![](/images/ar-guitar-effector-avp/scanned_data.jpg =300x)
-*ギターのヘッドの3Dスキャンデータ*
+*ギターのヘッドの3Dモデル*
 
 :::message
 3Dスキャンしたギターのヘッドのサイズは、およそ (幅) 10cm × (高さ) 20cm × (奥行き) 2cmでした。
@@ -336,6 +336,9 @@ struct ImmersiveView: View {
 # おわりに
 
 以上、"AR Guitar Effector【Apple Vision Pro ver.】"の開発記録をまとめました。[第16回VRフェス](https://peatix.com/event/4292335?lang=ja-jp)では来場者の皆さんに体験してもらったり私が演奏している様子を見てもらったりして、面白いという声をたくさんいただけて嬉しかったです。また、第16回Vアカオーディションではありがたいことに、技術的観点で高い評価だった作品に贈られる「技術賞」と、受講生間で高い評価だった作品に贈られる「Student賞」を受賞することができました！
+
+![](/images/ar-guitar-effector-avp/vr_academy.jpg =500x)
+*第16回Vアカオーディションにて技術賞受賞*
 
 今後も本プロジェクトは発展させていきたいと思います。そして、AR Guitar Effectorを使ったライブパフォーマンスの実践として、2025/3/25にBuzzFront Yokohamaで開催される「[Iwaken Lab. Performers Fest](https://lu.ma/9o0wuz9n?locale=ja&tk=dSOAms)」に出演します！「Immersive Live with AR Guitar」という演目で、MR技術を使った没入型演出と組み合わせたギターパフォーマンスを披露する予定です。XRなどのテクノロジーを活用した音楽表現・ライブ演出にご興味がある方はぜひお越しください！
 
